@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aditya Singh — Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&family=Fraunces:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ─── CURSOR ─── -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-trail" id="cursorTrail"></div>
+
+<!-- ─── NAV ─── -->
+<nav id="nav">
+  <div class="nav-logo">AS<span class="dot">.</span></div>
+  <ul class="nav-links">
+    <li><a href="#hero">Home</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#certificates">Certs</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <button class="nav-admin-btn" onclick="toggleAdmin()">Admin ⚙</button>
+</nav>
+
+<!-- ─── HERO ─── -->
+<section id="hero">
+  <div class="hero-bg">
+    <div class="grid-lines"></div>
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-tag" id="heroTag">B.Tech Final Year · CSE</div>
+    <h1 class="hero-name" id="heroName">
+      <span class="name-line">Aditya</span>
+      <span class="name-line accent">Singh</span>
+    </h1>
+    <p class="hero-bio" id="heroBio">Building the future, one commit at a time.</p>
+    <div class="hero-actions">
+      <a href="#projects" class="btn-primary">View Work</a>
+      <a id="heroResumeBtn" href="#" class="btn-outline" target="_blank">Download Resume</a>
+    </div>
+    <div class="hero-stats" id="heroStats">
+      <div class="stat"><span class="stat-num" id="statProjects">0</span><span class="stat-label">Projects</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><span class="stat-num" id="statCerts">0</span><span class="stat-label">Certificates</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><span class="stat-num" id="statSkills">0</span><span class="stat-label">Skills</span></div>
+    </div>
+  </div>
+  <div class="hero-scroll-hint">scroll down ↓</div>
+</section>
+
+<!-- ─── ABOUT ─── -->
+<section id="about">
+  <div class="section-label">001 — About</div>
+  <div class="about-grid">
+    <div class="about-left">
+      <div class="about-avatar" id="aboutAvatar">
+        <div class="avatar-initials" id="avatarInitials">AS</div>
+      </div>
+      <div class="about-contact-links" id="aboutContactLinks">
+        <a href="#" id="linkGithub" target="_blank" class="social-chip">GitHub ↗</a>
+        <a href="#" id="linkLinkedin" target="_blank" class="social-chip">LinkedIn ↗</a>
+        <a href="#" id="linkEmail" class="social-chip">Email ↗</a>
+      </div>
+    </div>
+    <div class="about-right">
+      <h2 class="about-heading">Who am I?</h2>
+      <p class="about-bio" id="aboutBio">Loading...</p>
+      <div class="about-meta" id="aboutMeta">
+        <div class="meta-row"><span class="meta-key">University</span><span class="meta-val" id="metaUniv">—</span></div>
+        <div class="meta-row"><span class="meta-key">Branch</span><span class="meta-val" id="metaBranch">—</span></div>
+        <div class="meta-row"><span class="meta-key">Location</span><span class="meta-val" id="metaLoc">—</span></div>
+        <div class="meta-row"><span class="meta-key">Email</span><span class="meta-val" id="metaEmail">—</span></div>
+      </div>
+      <div class="skills-section">
+        <div class="skills-label">Tech Stack</div>
+        <div class="skills-cloud" id="skillsCloud"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── PROJECTS ─── -->
+<section id="projects">
+  <div class="section-label">002 — Projects</div>
+  <div class="section-header">
+    <h2 class="section-title">Things I've Built</h2>
+  </div>
+  <div class="projects-grid" id="projectsGrid">
+    <div class="loading-shimmer"></div>
+    <div class="loading-shimmer"></div>
+    <div class="loading-shimmer"></div>
+  </div>
+</section>
+
+<!-- ─── CERTIFICATES ─── -->
+<section id="certificates">
+  <div class="section-label">003 — Certificates</div>
+  <div class="section-header">
+    <h2 class="section-title">Credentials</h2>
+  </div>
+  <div class="certs-grid" id="certsGrid">
+    <div class="loading-shimmer"></div>
+    <div class="loading-shimmer"></div>
+  </div>
+</section>
+
+<!-- ─── CONTACT ─── -->
+<section id="contact">
+  <div class="section-label">004 — Contact</div>
+  <div class="contact-layout">
+    <div class="contact-left">
+      <h2 class="contact-heading">Let's<br/><em>connect.</em></h2>
+      <p class="contact-sub">Open to internships, collaborations, and coffee chats.</p>
+      <div class="contact-info" id="contactInfo">
+        <div class="cinfo-row" id="cinfoEmail">📧 —</div>
+        <div class="cinfo-row" id="cinfoPhone">📱 —</div>
+        <div class="cinfo-row" id="cinfoLoc">📍 —</div>
+      </div>
+    </div>
+    <form class="contact-form" id="contactForm" onsubmit="sendMessage(event)">
+      <div class="form-group">
+        <label>Your Name</label>
+        <input type="text" id="msgName" placeholder="Rahul Sharma" required />
+      </div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="msgEmail" placeholder="rahul@email.com" required />
+      </div>
+      <div class="form-group">
+        <label>Message</label>
+        <textarea id="msgBody" rows="5" placeholder="Hey Aditya, let's collaborate on..." required></textarea>
+      </div>
+      <button type="submit" class="btn-primary full-width" id="sendBtn">Send Message →</button>
+      <div class="form-status" id="formStatus"></div>
+    </form>
+  </div>
+</section>
+
+<!-- ─── FOOTER ─── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-name" id="footerName">Aditya Singh</div>
+    <div class="footer-copy">Crafted with ❤ in India · 2025</div>
+  </div>
+</footer>
+
+<!-- ─── ADMIN PANEL ─── -->
+<div class="admin-overlay" id="adminOverlay" onclick="closeAdminIfOutside(event)">
+  <div class="admin-panel" id="adminPanel">
+    <div class="admin-header">
+      <h3>Admin Panel</h3>
+      <button onclick="toggleAdmin()" class="close-btn">✕</button>
+    </div>
+    <div class="admin-tabs">
+      <button class="tab-btn active" onclick="switchTab('profile')">Profile</button>
+      <button class="tab-btn" onclick="switchTab('projects')">Projects</button>
+      <button class="tab-btn" onclick="switchTab('certs')">Certs</button>
+      <button class="tab-btn" onclick="switchTab('resume')">Resume</button>
+    </div>
+
+    <!-- Profile Tab -->
+    <div class="tab-content active" id="tab-profile">
+      <div class="admin-form">
+        <div class="form-row">
+          <div class="form-group"><label>Full Name</label><input id="adName" type="text"/></div>
+          <div class="form-group"><label>Title</label><input id="adTitle" type="text"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Branch</label><input id="adBranch" type="text"/></div>
+          <div class="form-group"><label>University</label><input id="adUniv" type="text"/></div>
+        </div>
+        <div class="form-group"><label>Bio</label><textarea id="adBio" rows="3"></textarea></div>
+        <div class="form-row">
+          <div class="form-group"><label>Email</label><input id="adEmail" type="email"/></div>
+          <div class="form-group"><label>Phone</label><input id="adPhone" type="text"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>GitHub URL</label><input id="adGithub" type="url"/></div>
+          <div class="form-group"><label>LinkedIn URL</label><input id="adLinkedin" type="url"/></div>
+        </div>
+        <div class="form-group"><label>Location</label><input id="adLocation" type="text"/></div>
+        <div class="form-group"><label>Skills (comma separated)</label><input id="adSkills" type="text" placeholder="React, Python, Node.js"/></div>
+        <button class="btn-primary" onclick="saveProfile()">Save Profile</button>
+      </div>
+    </div>
+
+    <!-- Projects Tab -->
+    <div class="tab-content" id="tab-projects">
+      <div class="admin-form">
+        <div class="form-group"><label>Project Title</label><input id="pjTitle" type="text"/></div>
+        <div class="form-group"><label>Description</label><textarea id="pjDesc" rows="3"></textarea></div>
+        <div class="form-group"><label>Tech Stack (comma separated)</label><input id="pjTech" type="text"/></div>
+        <div class="form-row">
+          <div class="form-group"><label>GitHub Link</label><input id="pjGithub" type="url"/></div>
+          <div class="form-group"><label>Live Demo Link</label><input id="pjLive" type="url"/></div>
+        </div>
+        <div class="form-group"><label>Project Image/Screenshot</label><input id="pjImage" type="file" accept="image/*"/></div>
+        <div class="form-group checkbox-group">
+          <label><input type="checkbox" id="pjFeatured"/> Featured project</label>
+        </div>
+        <button class="btn-primary" onclick="addProject()">Add Project</button>
+        <div class="admin-list" id="adminProjectsList"></div>
+      </div>
+    </div>
+
+    <!-- Certs Tab -->
+    <div class="tab-content" id="tab-certs">
+      <div class="admin-form">
+        <div class="form-group"><label>Certificate Title</label><input id="ctTitle" type="text"/></div>
+        <div class="form-row">
+          <div class="form-group"><label>Issuer</label><input id="ctIssuer" type="text"/></div>
+          <div class="form-group"><label>Date (YYYY-MM)</label><input id="ctDate" type="month"/></div>
+        </div>
+        <div class="form-group"><label>Credential ID</label><input id="ctCred" type="text"/></div>
+        <div class="form-group"><label>Certificate Image</label><input id="ctImage" type="file" accept="image/*"/></div>
+        <button class="btn-primary" onclick="addCertificate()">Add Certificate</button>
+        <div class="admin-list" id="adminCertsList"></div>
+      </div>
+    </div>
+
+    <!-- Resume Tab -->
+    <div class="tab-content" id="tab-resume">
+      <div class="admin-form">
+        <p class="tab-desc">Upload your resume PDF. It will be downloadable from the hero section.</p>
+        <div class="form-group">
+          <label>Resume (PDF, DOC, DOCX)</label>
+          <input id="resumeFile" type="file" accept=".pdf,.doc,.docx"/>
+        </div>
+        <button class="btn-primary" onclick="uploadResume()">Upload Resume</button>
+        <div id="resumeStatus" class="form-status"></div>
+        <div id="resumePreview"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
