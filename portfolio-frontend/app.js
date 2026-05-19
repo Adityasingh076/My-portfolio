@@ -1,9 +1,7 @@
-// ─── CONFIG ─────────────────────────────────────────────
-const API = 'http://localhost:5000/api';
-const BASE_URL = 'http://localhost:5000';
 
-// ─── CUSTOM CURSOR ───────────────────────────────────────
-const cursor = document.getElementById('cursor');
+const BASE_URL = 'https://portfolio-backend-eo17.onrender.com';
+const API = `${BASE_URL}/api`;
+
 const trail = document.getElementById('cursorTrail');
 let mx = 0, my = 0, tx = 0, ty = 0;
 document.addEventListener('mousemove', e => {
