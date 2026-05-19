@@ -5,80 +5,128 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Aditya Singh — Portfolio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&family=Fraunces:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Cabinet+Grotesk:wght@400;500;700;800;900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<!-- ─── CURSOR ─── -->
+<!-- CURSOR -->
 <div class="cursor" id="cursor"></div>
 <div class="cursor-trail" id="cursorTrail"></div>
 
-<!-- ─── NAV ─── -->
+<!-- NOISE OVERLAY -->
+<div class="noise"></div>
+
+<!-- NAV -->
 <nav id="nav">
   <div class="nav-logo">AS<span class="dot">.</span></div>
   <ul class="nav-links">
     <li><a href="#hero">Home</a></li>
     <li><a href="#about">About</a></li>
+    <li><a href="#experience">Experience</a></li>
     <li><a href="#projects">Projects</a></li>
     <li><a href="#certificates">Certs</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
-  <button class="nav-admin-btn" onclick="toggleAdmin()">Admin ⚙</button>
+  <button class="nav-admin-btn" onclick="toggleAdmin()">⚙ Admin</button>
+  <button class="nav-mobile-menu" id="mobileMenuBtn" onclick="toggleMobileMenu()">☰</button>
 </nav>
 
-<!-- ─── HERO ─── -->
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="mobile-close" onclick="toggleMobileMenu()">✕</button>
+  <ul>
+    <li><a href="#hero" onclick="toggleMobileMenu()">Home</a></li>
+    <li><a href="#about" onclick="toggleMobileMenu()">About</a></li>
+    <li><a href="#experience" onclick="toggleMobileMenu()">Experience</a></li>
+    <li><a href="#projects" onclick="toggleMobileMenu()">Projects</a></li>
+    <li><a href="#certificates" onclick="toggleMobileMenu()">Certs</a></li>
+    <li><a href="#contact" onclick="toggleMobileMenu()">Contact</a></li>
+  </ul>
+</div>
+
+<!-- HERO -->
 <section id="hero">
   <div class="hero-bg">
     <div class="grid-lines"></div>
     <div class="orb orb1"></div>
     <div class="orb orb2"></div>
     <div class="orb orb3"></div>
+    <div class="floating-badge fb1">Java</div>
+    <div class="floating-badge fb2">JavaScript</div>
+    <div class="floating-badge fb3">Three.js</div>
+    <div class="floating-badge fb4">Node.js</div>
   </div>
   <div class="hero-content">
-    <div class="hero-tag" id="heroTag">B.Tech Final Year · CSE</div>
+    <div class="hero-tag" id="heroTag">
+      <span class="tag-dot"></span>
+      B.Tech CSE · Eshan College, Mathura
+    </div>
     <h1 class="hero-name" id="heroName">
       <span class="name-line">Aditya</span>
       <span class="name-line accent">Singh</span>
     </h1>
-    <p class="hero-bio" id="heroBio">Building the future, one commit at a time.</p>
+    <p class="hero-bio" id="heroBio">
+      <span class="typewriter" id="typewriterText"></span><span class="type-cursor">|</span>
+    </p>
     <div class="hero-actions">
-      <a href="#projects" class="btn-primary">View Work</a>
-      <a id="heroResumeBtn" href="#" class="btn-outline" target="_blank">Download Resume</a>
+      <a href="#projects" class="btn-primary">View My Work ↓</a>
+      <a id="heroResumeBtn" href="#" class="btn-outline" target="_blank">↓ Resume</a>
     </div>
     <div class="hero-stats" id="heroStats">
-      <div class="stat"><span class="stat-num" id="statProjects">0</span><span class="stat-label">Projects</span></div>
+      <div class="stat">
+        <span class="stat-num" id="statProjects">0</span>
+        <span class="stat-label">Projects</span>
+      </div>
       <div class="stat-divider"></div>
-      <div class="stat"><span class="stat-num" id="statCerts">0</span><span class="stat-label">Certificates</span></div>
+      <div class="stat">
+        <span class="stat-num" id="statCerts">0</span>
+        <span class="stat-label">Certificates</span>
+      </div>
       <div class="stat-divider"></div>
-      <div class="stat"><span class="stat-num" id="statSkills">0</span><span class="stat-label">Skills</span></div>
+      <div class="stat">
+        <span class="stat-num" id="statSkills">0</span>
+        <span class="stat-label">Skills</span>
+      </div>
     </div>
   </div>
-  <div class="hero-scroll-hint">scroll down ↓</div>
+  <div class="hero-scroll-hint">scroll ↓</div>
 </section>
 
-<!-- ─── ABOUT ─── -->
+<!-- ABOUT -->
 <section id="about">
   <div class="section-label">001 — About</div>
   <div class="about-grid">
     <div class="about-left">
       <div class="about-avatar" id="aboutAvatar">
+        <img id="avatarImg" src="" alt="Profile" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%;position:absolute;inset:0;z-index:1"/>
         <div class="avatar-initials" id="avatarInitials">AS</div>
+        <div class="avatar-ring"></div>
       </div>
       <div class="about-contact-links" id="aboutContactLinks">
-        <a href="#" id="linkGithub" target="_blank" class="social-chip">GitHub ↗</a>
-        <a href="#" id="linkLinkedin" target="_blank" class="social-chip">LinkedIn ↗</a>
-        <a href="#" id="linkEmail" class="social-chip">Email ↗</a>
+        <a href="https://github.com/Adityasingh076" id="linkGithub" target="_blank" class="social-chip">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          GitHub
+        </a>
+        <a href="https://www.linkedin.com/in/adi-singh-86b730298" id="linkLinkedin" target="_blank" class="social-chip">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          LinkedIn
+        </a>
+        <a href="mailto:adisingh956@gmail.com" id="linkEmail" class="social-chip">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+          Email
+        </a>
       </div>
     </div>
     <div class="about-right">
       <h2 class="about-heading">Who am I?</h2>
-      <p class="about-bio" id="aboutBio">Loading...</p>
+      <p class="about-bio" id="aboutBio">Software Engineering undergraduate with hands-on experience in Java, JavaScript, and geospatial data visualization. Skilled in developing responsive web applications and interactive 3D simulations using modern technologies. Passionate about building scalable, user-focused solutions.</p>
       <div class="about-meta" id="aboutMeta">
-        <div class="meta-row"><span class="meta-key">University</span><span class="meta-val" id="metaUniv">—</span></div>
-        <div class="meta-row"><span class="meta-key">Branch</span><span class="meta-val" id="metaBranch">—</span></div>
-        <div class="meta-row"><span class="meta-key">Location</span><span class="meta-val" id="metaLoc">—</span></div>
-        <div class="meta-row"><span class="meta-key">Email</span><span class="meta-val" id="metaEmail">—</span></div>
+        <div class="meta-row"><span class="meta-key">University</span><span class="meta-val" id="metaUniv">Eshan College of Engineering, Mathura</span></div>
+        <div class="meta-row"><span class="meta-key">Branch</span><span class="meta-val" id="metaBranch">B.Tech CSE (2022–2026)</span></div>
+        <div class="meta-row"><span class="meta-key">CGPA</span><span class="meta-val cgpa">8.4 / 10</span></div>
+        <div class="meta-row"><span class="meta-key">Location</span><span class="meta-val" id="metaLoc">Agra, Uttar Pradesh, India</span></div>
+        <div class="meta-row"><span class="meta-key">Email</span><span class="meta-val" id="metaEmail">adisingh956@gmail.com</span></div>
       </div>
       <div class="skills-section">
         <div class="skills-label">Tech Stack</div>
@@ -88,9 +136,44 @@
   </div>
 </section>
 
-<!-- ─── PROJECTS ─── -->
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="section-label">002 — Experience</div>
+  <div class="section-header">
+    <h2 class="section-title">Work & Internships</h2>
+  </div>
+  <div class="timeline" id="experienceTimeline">
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-card">
+        <div class="tl-header">
+          <div class="tl-meta">
+            <span class="tl-company">ADRDE – DRDO</span>
+            <span class="tl-period">May – June 2025</span>
+          </div>
+          <div class="tl-role">Software Engineering Intern</div>
+          <div class="tl-location">📍 Agra, Uttar Pradesh</div>
+        </div>
+        <ul class="tl-points">
+          <li>Contributed to development of geospatial data processing systems for defense-related applications</li>
+          <li>Processed and analyzed structured datasets to improve data accuracy, consistency, and usability</li>
+          <li>Collaborated with cross-functional teams following SDLC practices in a real-world R&D environment</li>
+          <li>Gained exposure to scalable system design, debugging, and performance optimization techniques</li>
+        </ul>
+        <div class="tl-tags">
+          <span class="tl-tag">Geospatial Systems</span>
+          <span class="tl-tag">Data Processing</span>
+          <span class="tl-tag">SDLC</span>
+          <span class="tl-tag">Defense Tech</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
 <section id="projects">
-  <div class="section-label">002 — Projects</div>
+  <div class="section-label">003 — Projects</div>
   <div class="section-header">
     <h2 class="section-title">Things I've Built</h2>
   </div>
@@ -101,9 +184,9 @@
   </div>
 </section>
 
-<!-- ─── CERTIFICATES ─── -->
+<!-- CERTIFICATES -->
 <section id="certificates">
-  <div class="section-label">003 — Certificates</div>
+  <div class="section-label">004 — Certificates</div>
   <div class="section-header">
     <h2 class="section-title">Credentials</h2>
   </div>
@@ -113,17 +196,26 @@
   </div>
 </section>
 
-<!-- ─── CONTACT ─── -->
+<!-- CONTACT -->
 <section id="contact">
-  <div class="section-label">004 — Contact</div>
+  <div class="section-label">005 — Contact</div>
   <div class="contact-layout">
     <div class="contact-left">
       <h2 class="contact-heading">Let's<br/><em>connect.</em></h2>
-      <p class="contact-sub">Open to internships, collaborations, and coffee chats.</p>
+      <p class="contact-sub">Open to internships, collaborations, and coffee chats ☕</p>
       <div class="contact-info" id="contactInfo">
-        <div class="cinfo-row" id="cinfoEmail">📧 —</div>
-        <div class="cinfo-row" id="cinfoPhone">📱 —</div>
-        <div class="cinfo-row" id="cinfoLoc">📍 —</div>
+        <div class="cinfo-row" id="cinfoEmail">
+          <span class="cinfo-icon">📧</span>
+          <span id="cinfoEmailTxt">adisingh956@gmail.com</span>
+        </div>
+        <div class="cinfo-row" id="cinfoPhone">
+          <span class="cinfo-icon">📱</span>
+          <span id="cinfoPhoneTxt">+91 9411970797</span>
+        </div>
+        <div class="cinfo-row" id="cinfoLoc">
+          <span class="cinfo-icon">📍</span>
+          <span>Agra, Uttar Pradesh, India</span>
+        </div>
       </div>
     </div>
     <form class="contact-form" id="contactForm" onsubmit="sendMessage(event)">
@@ -145,19 +237,70 @@
   </div>
 </section>
 
-<!-- ─── FOOTER ─── -->
+<!-- FOOTER -->
 <footer>
   <div class="footer-inner">
-    <div class="footer-name" id="footerName">Aditya Singh</div>
-    <div class="footer-copy">Crafted with ❤ in India · 2025</div>
+    <div class="footer-left">
+      <div class="footer-logo">AS<span class="dot">.</span></div>
+      <div class="footer-name" id="footerName">Aditya Singh</div>
+    </div>
+    <div class="footer-copy">Crafted with ❤ in Agra · 2025</div>
+    <div class="footer-links">
+      <a href="https://github.com/Adityasingh076" target="_blank">GitHub ↗</a>
+      <a href="https://www.linkedin.com/in/adi-singh-86b730298" target="_blank">LinkedIn ↗</a>
+    </div>
   </div>
 </footer>
 
-<!-- ─── ADMIN PANEL ─── -->
+<!-- ADMIN LOGIN -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <div class="login-logo">AS<span class="dot">.</span></div>
+    <h3 class="login-title">Admin Access</h3>
+    <p class="login-sub">Enter password to continue</p>
+    <div class="form-group" style="margin-bottom:8px">
+      <label>Password</label>
+      <input type="password" id="adminPassword" placeholder="Enter admin password" onkeydown="if(event.key==='Enter') checkLogin()"/>
+    </div>
+    <div id="loginError" style="display:none;color:#ef4444;font-family:var(--font-mono);font-size:0.75rem;margin-bottom:8px;">Wrong password. Try again.</div>
+    <button class="btn-primary" style="width:100%;margin-top:4px" onclick="checkLogin()">Login</button>
+  </div>
+</div>
+
+<!-- EDIT PROJECT MODAL -->
+<div class="admin-overlay" id="editProjectOverlay" onclick="closeEditIfOutside(event)">
+  <div class="admin-panel" style="max-width:520px">
+    <div class="admin-header">
+      <h3>Edit Project</h3>
+      <button onclick="closeEditModal()" class="close-btn">X</button>
+    </div>
+    <div style="padding:28px;display:flex;flex-direction:column;gap:14px;">
+      <input type="hidden" id="editPjId"/>
+      <input type="hidden" id="editPjExistingImage"/>
+      <div class="form-group"><label>Project Title</label><input id="editPjTitle" type="text"/></div>
+      <div class="form-group"><label>Description</label><textarea id="editPjDesc" rows="3"></textarea></div>
+      <div class="form-group"><label>Tech Stack (comma separated)</label><input id="editPjTech" type="text"/></div>
+      <div class="form-row">
+        <div class="form-group"><label>GitHub Link</label><input id="editPjGithub" type="url"/></div>
+        <div class="form-group"><label>Live Demo Link</label><input id="editPjLive" type="url"/></div>
+      </div>
+      <div class="form-group">
+        <input id="editPjImage" type="file" accept="image/*"/>
+        <div id="editPjImagePreview" style="margin-top:8px;"></div>
+      </div>
+      <div class="form-group checkbox-group">
+        <label><input type="checkbox" id="editPjFeatured"/> Featured project</label>
+      </div>
+      <button class="btn-primary" onclick="saveEditProject()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
 <div class="admin-overlay" id="adminOverlay" onclick="closeAdminIfOutside(event)">
   <div class="admin-panel" id="adminPanel">
     <div class="admin-header">
-      <h3>Admin Panel</h3>
+      <h3>⚙ Admin Panel</h3>
       <button onclick="toggleAdmin()" class="close-btn">✕</button>
     </div>
     <div class="admin-tabs">
@@ -188,7 +331,16 @@
           <div class="form-group"><label>LinkedIn URL</label><input id="adLinkedin" type="url"/></div>
         </div>
         <div class="form-group"><label>Location</label><input id="adLocation" type="text"/></div>
-        <div class="form-group"><label>Skills (comma separated)</label><input id="adSkills" type="text" placeholder="React, Python, Node.js"/></div>
+        <div class="form-group"><label>Skills (comma separated)</label><input id="adSkills" type="text" placeholder="Java, JavaScript, Node.js"/></div>
+        <div class="form-group">
+          <label>Profile Photo</label>
+          <div class="photo-upload-area" id="photoUploadArea" onclick="document.getElementById('adPhoto').click()">
+            <img id="photoPreview" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:10px;position:absolute;inset:0"/>
+            <span id="photoPlaceholder">📷 Click to upload your photo</span>
+          </div>
+          <input id="adPhoto" type="file" accept="image/*" style="display:none" onchange="previewPhoto(event)"/>
+          <p style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text3);margin-top:6px;">JPG, PNG or WebP · Square image works best</p>
+        </div>
         <button class="btn-primary" onclick="saveProfile()">Save Profile</button>
       </div>
     </div>
@@ -203,12 +355,13 @@
           <div class="form-group"><label>GitHub Link</label><input id="pjGithub" type="url"/></div>
           <div class="form-group"><label>Live Demo Link</label><input id="pjLive" type="url"/></div>
         </div>
-        <div class="form-group"><label>Project Image/Screenshot</label><input id="pjImage" type="file" accept="image/*"/></div>
+        <div class="form-group"><label>Project Image</label><input id="pjImage" type="file" accept="image/*"/></div>
         <div class="form-group checkbox-group">
           <label><input type="checkbox" id="pjFeatured"/> Featured project</label>
         </div>
         <button class="btn-primary" onclick="addProject()">Add Project</button>
         <div class="admin-list" id="adminProjectsList"></div>
+     
       </div>
     </div>
 
@@ -242,6 +395,7 @@
     </div>
   </div>
 </div>
+
 <script src="app.js"></script>
 </body>
 </html>

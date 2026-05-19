@@ -188,6 +188,23 @@ app.post('/api/projects', upload.single('image'), async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+app.put('/api/projects/:id', upload.single('image'), async (req, res) => {
+  const data = JSON.parse(req.body.data || '{}');
+  const techStr = Array.isArray(data.tech) ? data.tech.join(',') : (data.tech || '');
+  try {
+    // Agar nai image upload hui hai toh use karo, warna purani rakho
+    let imagePath = data.existingImage || null;
+    if (req.file) imagePath = `/uploads/projects/${req.file.filename}`;
+    await pool.query(
+      `UPDATE projects SET title=$1, description=$2, tech=$3, github=$4, live=$5, image=$6, featured=$7
+       WHERE id=$8`,
+      [data.title, data.description, techStr, data.github, data.live, imagePath, data.featured || false, req.params.id]
+    );
+    const result = await pool.query('SELECT * FROM projects WHERE id=$1', [req.params.id]);
+    res.json({ success: true, project: { ...result.rows[0], tech: techStr.split(',') } });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 app.delete('/api/projects/:id', async (req, res) => {
   try {
     await pool.query('DELETE FROM projects WHERE id=$1', [req.params.id]);
