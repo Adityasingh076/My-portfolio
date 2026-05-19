@@ -15,6 +15,43 @@ app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// ─── ADMIN AUTH MIDDLEWARE ────────────────────────────────
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'change_this_password';
+
+// Token store (in-memory; resets on server restart — fine for portfolio)
+const activeSessions = new Set();
+
+function generateToken() {
+  return require('crypto').randomBytes(32).toString('hex');
+}
+
+function requireAdmin(req, res, next) {
+  const token = req.headers['x-admin-token'];
+  if (!token || !activeSessions.has(token)) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  next();
+}
+
+// ─── LOGIN ROUTE ─────────────────────────────────────────
+app.post('/api/admin/login', (req, res) => {
+  const { password } = req.body;
+  if (!password || password !== ADMIN_PASSWORD) {
+    return res.status(401).json({ error: 'Invalid password' });
+  }
+  const token = generateToken();
+  activeSessions.add(token);
+  // Auto-expire token after 8 hours
+  setTimeout(() => activeSessions.delete(token), 8 * 60 * 60 * 1000);
+  res.json({ success: true, token });
+});
+
+app.post('/api/admin/logout', (req, res) => {
+  const token = req.headers['x-admin-token'];
+  if (token) activeSessions.delete(token);
+  res.json({ success: true });
+});
+
 // ─── POSTGRESQL CONNECTION ────────────────────────────────
 const pool = new Pool({
   host: process.env.DB_HOST || 'localhost',
@@ -145,7 +182,7 @@ app.get('/api/profile', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.put('/api/profile', async (req, res) => {
+app.put('/api/profile', requireAdmin, async (req, res) => {
   const { name, title, branch, university, bio, email, phone, github, linkedin, location, skills } = req.body;
   const skillsStr = Array.isArray(skills) ? skills.join(',') : skills;
   try {
@@ -176,7 +213,7 @@ app.get('/api/projects', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.post('/api/projects', upload.single('image'), async (req, res) => {
+app.post('/api/projects', requireAdmin, upload.single('image'), async (req, res) => {
   const data = JSON.parse(req.body.data || '{}');
   const imagePath = req.file ? `/uploads/projects/${req.file.filename}` : null;
   const techStr = Array.isArray(data.tech) ? data.tech.join(',') : (data.tech || '');
@@ -190,7 +227,7 @@ app.post('/api/projects', upload.single('image'), async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.put('/api/projects/:id', upload.single('image'), async (req, res) => {
+app.put('/api/projects/:id', requireAdmin, upload.single('image'), async (req, res) => {
   const data = JSON.parse(req.body.data || '{}');
   const techStr = Array.isArray(data.tech) ? data.tech.join(',') : (data.tech || '');
   try {
@@ -207,7 +244,7 @@ app.put('/api/projects/:id', upload.single('image'), async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.delete('/api/projects/:id', async (req, res) => {
+app.delete('/api/projects/:id', requireAdmin, async (req, res) => {
   try {
     await pool.query('DELETE FROM projects WHERE id=$1', [req.params.id]);
     res.json({ success: true });
@@ -222,7 +259,7 @@ app.get('/api/certificates', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.post('/api/certificates', upload.single('image'), async (req, res) => {
+app.post('/api/certificates', requireAdmin, upload.single('image'), async (req, res) => {
   const data = JSON.parse(req.body.data || '{}');
   const imagePath = req.file ? `/uploads/certificates/${req.file.filename}` : null;
   try {
@@ -235,7 +272,7 @@ app.post('/api/certificates', upload.single('image'), async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.delete('/api/certificates/:id', async (req, res) => {
+app.delete('/api/certificates/:id', requireAdmin, async (req, res) => {
   try {
     await pool.query('DELETE FROM certificates WHERE id=$1', [req.params.id]);
     res.json({ success: true });
@@ -261,7 +298,7 @@ app.get('/api/resume/download', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.post('/api/resume/:type', upload.single('file'), async (req, res) => {
+app.post('/api/resume/:type', requireAdmin, upload.single('file'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
   const filePath = `/uploads/resume/${req.file.filename}`;
   try {
@@ -281,7 +318,7 @@ app.post('/api/contact', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.get('/api/messages', async (req, res) => {
+app.get('/api/messages', requireAdmin, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM messages ORDER BY created_at DESC');
     res.json(result.rows);

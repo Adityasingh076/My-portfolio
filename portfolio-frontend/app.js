@@ -367,7 +367,9 @@ async function sendMessage(e) {
   }
 }
 
-
+// ─── ADMIN PANEL ─────────────────────────────────────────
+// ─── ADMIN PASSWORD ──────────────────────────────────────
+const ADMIN_PASSWORD = 'aditya@2025'; // <-- apna password yahan set karo
 
 function toggleAdmin() {
   const isLoggedIn = sessionStorage.getItem('adminLoggedIn') === 'true';
@@ -381,9 +383,7 @@ function toggleAdmin() {
 
 function checkLogin() {
   const pwd = document.getElementById('adminPassword').value;
-  if (pwd && pwd.length > 0) {
-    // TODO: Validate against backend API instead of frontend
-    // For now, allow access (for local testing)
+  if (pwd === ADMIN_PASSWORD) {
     sessionStorage.setItem('adminLoggedIn', 'true');
     document.getElementById('loginOverlay').classList.remove('open');
     document.getElementById('adminPassword').value = '';
@@ -391,7 +391,7 @@ function checkLogin() {
     document.getElementById('adminOverlay').classList.add('open');
   } else {
     document.getElementById('loginError').style.display = 'block';
-    document.getElementById('loginError').textContent = 'Password required';
+    document.getElementById('adminPassword').value = '';
     document.getElementById('adminPassword').focus();
   }
 }
