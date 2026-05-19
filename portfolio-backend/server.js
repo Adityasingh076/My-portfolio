@@ -59,12 +59,13 @@ app.post('/api/admin/logout', (req, res) => {
 });
 
 // ─── POSTGRESQL POOL CONFIGURATION ────────────────────────
+const { Pool } = require('pg');
+
 const pool = new Pool({
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '5432'),
-  database: process.env.DB_NAME || 'portfoliodb',
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD,
+  connectionString: process.env.DATABASE_URL, // Render ke liye ye sabse best hai
+  ssl: {
+    rejectUnauthorized: false // Render par connection ke liye ye zaroori hai
+  }
 });
 
 pool.query('SELECT NOW()')
