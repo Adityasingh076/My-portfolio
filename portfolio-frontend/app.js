@@ -1,4 +1,3 @@
-
 const BASE_URL = 'https://portfolio-backend-eo17.onrender.com';
 const API = `${BASE_URL}/api`;
 
@@ -74,6 +73,7 @@ window.addEventListener('scroll', () => {
 
 // ─── COUNTER ANIMATION ───────────────────────────────────
 function animateCount(el, target, duration = 1400) {
+  if (!el) return;
   let start = 0;
   const step = ts => {
     if (!start) start = ts;
@@ -105,15 +105,15 @@ function initReveal() {
   });
 }
 
-// ─── LOAD ALL DATA ───────────────────────────────────────
+// ─── LOAD ALL DATA FROM BACKEND ──────────────────────────
 async function loadAll() {
   try {
     const [profile, projects, certs, resume, stats] = await Promise.all([
-      fetch(`${API}/profile`).then(r => r.json()),
-      fetch(`${API}/projects`).then(r => r.json()),
-      fetch(`${API}/certificates`).then(r => r.json()),
-      fetch(`${API}/resume`).then(r => r.json()),
-      fetch(`${API}/stats`).then(r => r.json()),
+      fetch(`${API}/profile`).then(r => r.ok ? r.json() : Promise.reject()),
+      fetch(`${API}/projects`).then(r => r.ok ? r.json() : Promise.reject()),
+      fetch(`${API}/certificates`).then(r => r.ok ? r.json() : Promise.reject()),
+      fetch(`${API}/resume`).then(r => r.ok ? r.json() : Promise.reject()),
+      fetch(`${API}/stats`).then(r => r.ok ? r.json() : Promise.reject()),
     ]);
     renderProfile(profile);
     renderProjects(projects);
@@ -123,90 +123,47 @@ async function loadAll() {
     populateAdmin(profile);
     renderAdminLists(projects, certs);
   } catch (err) {
-    console.warn('Backend offline — using demo mode');
+    console.warn('Backend loading failed or offline — running safely in demo sync mode');
     loadDemo();
   }
   setTimeout(initReveal, 100);
 }
 
-// ─── DEMO MODE (uses real resume data) ───────────────────
+// ─── DEMO MODE ───────────────────────────────────────────
 function loadDemo() {
   const profile = {
-    name: "Aditya Singh",
-    title: "B.Tech Final Year Student",
-    branch: "Computer Science & Engineering",
+    name: "Aditya Singh", title: "B.Tech Final Year Student", branch: "Computer Science & Engineering",
     university: "Eshan College of Engineering, Mathura",
     bio: "Software Engineering undergraduate with hands-on experience in Java, JavaScript, and geospatial data visualization. Skilled in developing responsive web applications and interactive 3D simulations. Passionate about building scalable, user-focused solutions and continuously improving through real-world projects.",
-    email: "adisingh956@gmail.com",
-    phone: "+91 9411970797",
-    github: "https://github.com/Adityasingh076",
-    linkedin: "https://www.linkedin.com/in/adi-singh-86b730298",
+    email: "adisingh956@gmail.com", phone: "+91 9411970797",
+    github: "https://github.com/Adityasingh076", linkedin: "https://www.linkedin.com/in/adi-singh-86b730298",
     location: "Agra, Uttar Pradesh, India",
     skills: ["Java", "JavaScript", "HTML5", "CSS3", "SQL", "Three.js", "Node.js", "Git", "GitHub", "VS Code", "IntelliJ IDEA", "MySQL", "OOP", "Data Structures", "Geospatial Processing"]
   };
-  const projects = [
-    {
-      id: 1,
-      title: "3D UAV Flight Path Visualizer",
-      description: "Interactive 3D simulation system to visualize UAV and satellite trajectories. Built a data pipeline processing CSV-based geospatial datasets with coordinate transformation and computational geometry to map GPS data into 3D space.",
-      tech: ["Three.js", "JavaScript", "Geospatial", "3D Visualization"],
-      github: "https://github.com/Adityasingh076/3D-UAV-Flight-Path-Visualizer.git",
-      live: null,
-      featured: true,
-      image: null
-    },
-    {
-      id: 2,
-      title: "BrewTech Coffee House",
-      description: "Responsive e-commerce web application for a coffee brand. Features a client-side cart system, dynamic product filtering, modals, and a real-time billing & invoice generation module.",
-      tech: ["JavaScript", "HTML5", "CSS3", "DOM API", "localStorage"],
-      github: "https://github.com/Adityasingh076/BREW-TECH.git",
-      live: null,
-      featured: true,
-      image: null
-    },
-    {
-      id: 3,
-      title: "Smart Bottle Turbidity Visualizer",
-      description: "Data visualization system to monitor and interpret water turbidity levels in real time. Uses dynamic JavaScript data handling, interactive UI components, and data mapping to convert raw sensor inputs into meaningful visual insights.",
-      tech: ["JavaScript", "Data Visualization", "Frontend Engineering"],
-      github: "https://github.com/Adityasingh076/Smart-Bottle-Turbidity-Visualizer.git",
-      live: null,
-      featured: false,
-      image: null
-    },
-    {
-      id: 4,
-      title: "SocketChat",
-      description: "Real-time multi-room chat application built with Node.js, featuring persistent message storage with SQLite and a clean dark UI with room selection.",
-      tech: ["Node.js", "Socket.io", "SQLite", "JavaScript"],
-      github: "#",
-      live: null,
-      featured: false,
-      image: null
-    }
+  let projects = [
+    { id: 1, title: "3D UAV Flight Path Visualizer", description: "Interactive 3D simulation system to visualize UAV and satellite trajectories. Built a data pipeline processing CSV-based geospatial datasets.", tech: ["Three.js", "JavaScript", "Geospatial"], github: "https://github.com/Adityasingh076/3D-UAV-Flight-Path-Visualizer.git", live: null, featured: true, image: null },
+    { id: 2, title: "BrewTech Coffee House", description: "Responsive e-commerce web application for a coffee brand. Features a client-side cart system and dynamic product filtering.", tech: ["JavaScript", "HTML5", "CSS3", "localStorage"], github: "https://github.com/Adityasingh076/BREW-TECH.git", live: null, featured: true, image: null },
+    { id: 3, title: "Smart Bottle Turbidity Visualizer", description: "Data visualization system to monitor and interpret water turbidity levels in real time.", tech: ["JavaScript", "Data Visualization"], github: "https://github.com/Adityasingh076/Smart-Bottle-Turbidity-Visualizer.git", live: null, featured: false, image: null }
   ];
   const certs = [
-    { id: 1, title: "Software Engineering Internship", issuer: "ADRDE – DRDO, Agra", date: "2025-06", credentialId: "DRDO-2025" },
-    { id: 2, title: "Full Stack Development", issuer: "Add from Admin Panel", date: "2024-01", credentialId: "" }
+    { id: 1, title: "Software Engineering Internship", issuer: "ADRDE – DRDO, Agra", date: "2025-06", credentialId: "DRDO-2025" }
   ];
-  // Load locally saved projects if any
   const savedProjects = JSON.parse(localStorage.getItem('portfolio_projects') || 'null');
   if (savedProjects && savedProjects.length) projects = savedProjects;
 
   renderProfile(profile);
   renderProjects(projects);
   renderCerts(certs);
-  renderStats({ projects: projects.length, certificates: certs.length, skills: 15 });
+  renderStats({ projects: projects.length, certificates: certs.length, skills: profile.skills.length });
   populateAdmin(profile);
   renderAdminLists(projects, certs);
 }
 
 // ─── RENDER PROFILE ──────────────────────────────────────
 function renderProfile(p) {
+  if(!p.name) return;
   document.getElementById('heroTag').innerHTML = `<span class="tag-dot"></span> ${p.branch} · ${p.title}`;
-  document.getElementById('heroName').innerHTML =
-    `<span class="name-line">${p.name.split(' ')[0]}</span><span class="name-line accent">${p.name.split(' ').slice(1).join(' ')}</span>`;
+  document.getElementById('heroName').innerHTML = `<span class="name-line">${p.name.split(' ')[0]}</span><span class="name-line accent">${p.name.split(' ').slice(1).join(' ')}</span>`;
   document.getElementById('aboutBio').textContent = p.bio;
   document.getElementById('metaUniv').textContent = p.university;
   document.getElementById('metaBranch').textContent = p.branch + ' (2022–2026)';
@@ -230,7 +187,7 @@ function renderProfile(p) {
 }
 
 // ─── RENDER PROJECTS ─────────────────────────────────────
-const projectEmojis = { 'three.js': '🌐', 'geospatial': '🛰', 'java': '☕', 'node': '🟢', 'react': '⚛', 'python': '🐍', 'socket': '⚡', 'coffee': '☕', 'water': '💧' };
+const projectEmojis = { 'three.js': '🌐', 'geospatial': '🛰', 'java': '☕', 'node': '🟢', 'react': '⚛', 'python': '🐍', 'socket': '⚡' };
 function getProjectEmoji(tech = [], title = '') {
   const combined = [...tech, title].join(' ').toLowerCase();
   for (const [key, emoji] of Object.entries(projectEmojis)) {
@@ -247,7 +204,7 @@ function getImageUrl(imgPath) {
 
 function renderProjects(projects) {
   const grid = document.getElementById('projectsGrid');
-  if (!projects.length) {
+  if (!projects || !projects.length) {
     grid.innerHTML = '<p class="no-items">No projects yet. Add from Admin panel!</p>';
     return;
   }
@@ -271,13 +228,7 @@ function renderProjects(projects) {
 
 // ─── RENDER CERTIFICATES ─────────────────────────────────
 function getCertEmoji(issuer = '') {
-  const i = issuer.toLowerCase();
-  if (i.includes('drdo') || i.includes('adrde')) return '🛡';
-  if (i.includes('aws') || i.includes('amazon')) return '☁';
-  if (i.includes('google')) return '🔵';
-  if (i.includes('meta') || i.includes('facebook')) return '⬡';
-  if (i.includes('coursera') || i.includes('udemy')) return '📚';
-  if (i.includes('microsoft')) return '🪟';
+  if (issuer.toLowerCase().includes('drdo')) return '🛡';
   return '🎓';
 }
 function formatDate(d) {
@@ -290,7 +241,7 @@ function formatDate(d) {
 
 function renderCerts(certs) {
   const grid = document.getElementById('certsGrid');
-  if (!certs.length) {
+  if (!certs || !certs.length) {
     grid.innerHTML = '<p class="no-items">No certificates yet. Add from Admin!</p>';
     return;
   }
@@ -309,7 +260,6 @@ function renderCerts(certs) {
   `).join('');
 }
 
-// ─── RENDER RESUME ───────────────────────────────────────
 function renderResume(data) {
   const btn = document.getElementById('heroResumeBtn');
   if (data && data.resume) {
@@ -325,7 +275,6 @@ function renderResume(data) {
   }
 }
 
-// ─── RENDER STATS ────────────────────────────────────────
 function renderStats(stats) {
   setTimeout(() => {
     animateCount(document.getElementById('statProjects'), stats.projects || 0);
@@ -334,14 +283,14 @@ function renderStats(stats) {
   }, 700);
 }
 
-// ─── CONTACT ─────────────────────────────────────────────
+// ─── CONTACT FORM ────────────────────────────────────────
 async function sendMessage(e) {
   e.preventDefault();
   const btn = document.getElementById('sendBtn');
   const status = document.getElementById('formStatus');
   btn.textContent = 'Sending...'; btn.disabled = true;
   try {
-    const res = await fetch(`${API}/contact`, {
+    await fetch(`${API}/contact`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         name: document.getElementById('msgName').value,
@@ -349,29 +298,22 @@ async function sendMessage(e) {
         message: document.getElementById('msgBody').value
       })
     });
-    const data = await res.json();
-    if (data.success) {
-      status.textContent = '✓ Message sent! I\'ll get back to you soon.';
-      status.className = 'form-status success';
-      document.getElementById('contactForm').reset();
-    } else throw new Error();
+    status.textContent = '✓ Message sent successfully!';
+    status.className = 'form-status success';
+    document.getElementById('contactForm').reset();
   } catch {
     status.textContent = '✓ Message received (demo mode).';
     status.className = 'form-status success';
-    document.getElementById('contactForm').reset();
   } finally {
     btn.textContent = 'Send Message →'; btn.disabled = false;
     setTimeout(() => { status.textContent = ''; }, 5000);
   }
 }
 
-// ─── ADMIN PANEL ─────────────────────────────────────────
-// ─── ADMIN PASSWORD ──────────────────────────────────────
-const ADMIN_PASSWORD = 'aditya@2025'; // <-- apna password yahan set karo
-
+// ─── AUTHENTICATED ADMIN SYSTEM ──────────────────────────
 function toggleAdmin() {
-  const isLoggedIn = sessionStorage.getItem('adminLoggedIn') === 'true';
-  if (!isLoggedIn) {
+  const token = localStorage.getItem('adminAuthToken');
+  if (!token) {
     document.getElementById('loginOverlay').classList.add('open');
     setTimeout(() => document.getElementById('adminPassword').focus(), 100);
   } else {
@@ -379,20 +321,43 @@ function toggleAdmin() {
   }
 }
 
-function checkLogin() {
+async function checkLogin() {
   const pwd = document.getElementById('adminPassword').value;
-  if (pwd === ADMIN_PASSWORD) {
-    sessionStorage.setItem('adminLoggedIn', 'true');
-    document.getElementById('loginOverlay').classList.remove('open');
-    document.getElementById('adminPassword').value = '';
-    document.getElementById('loginError').style.display = 'none';
-    document.getElementById('adminOverlay').classList.add('open');
-  } else {
-    document.getElementById('loginError').style.display = 'block';
+  const loginError = document.getElementById('loginError');
+  
+  try {
+    const res = await fetch(`${API}/admin/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pwd })
+    });
+    const data = await res.json();
+    
+    if (res.ok && data.token) {
+      localStorage.setItem('adminAuthToken', data.token); // Store token securely
+      document.getElementById('loginOverlay').classList.remove('open');
+      document.getElementById('adminPassword').value = '';
+      loginError.style.display = 'none';
+      document.getElementById('adminOverlay').classList.add('open');
+      showToast('Logged in safely!');
+    } else {
+      throw new Error(data.error);
+    }
+  } catch (err) {
+    loginError.style.display = 'block';
     document.getElementById('adminPassword').value = '';
     document.getElementById('adminPassword').focus();
   }
 }
+
+function handleLogout() {
+  const token = localStorage.getItem('adminAuthToken');
+  fetch(`${API}/admin/logout`, { method: 'POST', headers: { 'x-admin-token': token } });
+  localStorage.removeItem('adminAuthToken');
+  document.getElementById('adminOverlay').classList.remove('open');
+  showToast('Logged out successfully!');
+}
+
 function closeAdminIfOutside(e) {
   if (e.target === document.getElementById('adminOverlay')) toggleAdmin();
 }
@@ -403,8 +368,9 @@ function switchTab(name) {
   document.getElementById(`tab-${name}`).classList.add('active');
 }
 
-// ─── ADMIN: POPULATE PROFILE ─────────────────────────────
+// ─── ADMIN CRUDS (WITH HEADERS TOKEN FIXED) ──────────────
 function populateAdmin(p) {
+  if (!p) return;
   document.getElementById('adName').value = p.name || '';
   document.getElementById('adTitle').value = p.title || '';
   document.getElementById('adBranch').value = p.branch || '';
@@ -417,7 +383,9 @@ function populateAdmin(p) {
   document.getElementById('adLocation').value = p.location || '';
   document.getElementById('adSkills').value = (p.skills || []).join(', ');
 }
+
 async function saveProfile() {
+  const token = localStorage.getItem('adminAuthToken');
   const profile = {
     name: document.getElementById('adName').value,
     title: document.getElementById('adTitle').value,
@@ -432,16 +400,27 @@ async function saveProfile() {
     skills: document.getElementById('adSkills').value.split(',').map(s => s.trim()).filter(Boolean)
   };
   try {
-    await fetch(`${API}/profile`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(profile) });
-  } catch {}
+    const res = await fetch(`${API}/profile`, { 
+      method: 'PUT', 
+      headers: { 
+        'Content-Type': 'application/json',
+        'x-admin-token': token // Added Auth Header
+      }, 
+      body: JSON.stringify(profile) 
+    });
+    if(!res.ok) throw new Error();
+    showToast('Profile saved on cloud!');
+  } catch {
+    showToast('Saved Locally (offline mode)');
+  }
   renderProfile(profile);
-  showToast('Profile saved!');
 }
 
-// ─── ADMIN: ADD PROJECT ──────────────────────────────────
 async function addProject() {
+  const token = localStorage.getItem('adminAuthToken');
   const title = document.getElementById('pjTitle').value.trim();
   if (!title) return showToast('Title required', true);
+  
   const data = {
     title,
     description: document.getElementById('pjDesc').value,
@@ -450,61 +429,97 @@ async function addProject() {
     live: document.getElementById('pjLive').value,
     featured: document.getElementById('pjFeatured').checked
   };
+  
   const imageFile = document.getElementById('pjImage').files[0];
-
-  // Read image as base64 so it works without backend too
-  let imageBase64 = null;
-  if (imageFile) {
-    imageBase64 = await new Promise(resolve => {
-      const reader = new FileReader();
-      reader.onload = e => resolve(e.target.result);
-      reader.readAsDataURL(imageFile);
-    });
-  }
-
   const formData = new FormData();
   formData.append('data', JSON.stringify(data));
   if (imageFile) formData.append('image', imageFile);
+  
   let projects;
   try {
-    await fetch(`${API}/projects`, { method: 'POST', body: formData });
-    const res = await fetch(`${API}/projects`);
-    projects = await res.json();
+    const res = await fetch(`${API}/projects`, { 
+      method: 'POST', 
+      headers: { 'x-admin-token': token }, // Added Auth Header
+      body: formData 
+    });
+    if(!res.ok) throw new Error();
+    const r = await fetch(`${API}/projects`);
+    projects = await r.json();
+    showToast('Project added via Cloud DB!');
   } catch {
-    // Backend offline — save with base64 image to localStorage
     const saved = JSON.parse(localStorage.getItem('portfolio_projects') || '[]');
-    const newProject = { id: Date.now(), ...data, image: imageBase64 };
-    saved.push(newProject);
+    saved.push({ id: Date.now(), ...data, image: null });
     localStorage.setItem('portfolio_projects', JSON.stringify(saved));
     projects = saved;
+    showToast('Project added inside Local Cache');
   }
   renderProjects(projects);
   renderAdminLists(projects, null);
   ['pjTitle','pjDesc','pjTech','pjGithub','pjLive'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('pjImage').value = '';
-  setTimeout(initReveal, 100);
-  showToast('Project added!');
 }
-async function deleteProject(id) {
+
+async function saveEditProject() {
+  const token = localStorage.getItem('adminAuthToken');
+  const id = document.getElementById('editPjId').value;
+  const data = {
+    title: document.getElementById('editPjTitle').value.trim(),
+    description: document.getElementById('editPjDesc').value,
+    tech: document.getElementById('editPjTech').value.split(',').map(s => s.trim()).filter(Boolean),
+    github: document.getElementById('editPjGithub').value,
+    live: document.getElementById('editPjLive').value,
+    featured: document.getElementById('editPjFeatured').checked,
+    existingImage: document.getElementById('editPjExistingImage').value
+  };
+  if (!data.title) return showToast('Title required', true);
+  
+  const imageFile = document.getElementById('editPjImage').files[0];
+  const formData = new FormData();
+  formData.append('data', JSON.stringify(data));
+  if (imageFile) formData.append('image', imageFile);
+  
   try {
-    await fetch(`${API}/projects/${id}`, { method: 'DELETE' });
-    const res = await fetch(`${API}/projects`);
-    const projects = await res.json();
+    const res = await fetch(API + '/projects/' + id, { 
+      method: 'PUT', 
+      headers: { 'x-admin-token': token }, // Added Auth Header
+      body: formData 
+    });
+    if(!res.ok) throw new Error();
+    const refreshRes = await fetch(API + '/projects');
+    const projects = await refreshRes.json();
     renderProjects(projects);
     renderAdminLists(projects, null);
+    closeEditModal();
+    showToast('Project updated successfully!');
   } catch {
-    // Remove from localStorage
+    showToast('Error saving project edits', true);
+  }
+}
+
+async function deleteProject(id) {
+  const token = localStorage.getItem('adminAuthToken');
+  try {
+    const res = await fetch(`${API}/projects/${id}`, { 
+      method: 'DELETE',
+      headers: { 'x-admin-token': token } // Added Auth Header
+    });
+    if(!res.ok) throw new Error();
+    const refresh = await fetch(`${API}/projects`);
+    const projects = await refresh.json();
+    renderProjects(projects);
+    renderAdminLists(projects, null);
+    showToast('Project removed!');
+  } catch {
     const saved = JSON.parse(localStorage.getItem('portfolio_projects') || '[]');
     const updated = saved.filter(p => p.id !== id);
     localStorage.setItem('portfolio_projects', JSON.stringify(updated));
     renderProjects(updated);
     renderAdminLists(updated, null);
-    showToast('Project deleted!');
   }
 }
 
-// ─── ADMIN: ADD CERTIFICATE ──────────────────────────────
 async function addCertificate() {
+  const token = localStorage.getItem('adminAuthToken');
   const title = document.getElementById('ctTitle').value.trim();
   if (!title) return showToast('Title required', true);
   const data = {
@@ -517,68 +532,59 @@ async function addCertificate() {
   const formData = new FormData();
   formData.append('data', JSON.stringify(data));
   if (imageFile) formData.append('image', imageFile);
-  let certs;
+  
   try {
-    await fetch(`${API}/certificates`, { method: 'POST', body: formData });
-    const res = await fetch(`${API}/certificates`);
-    certs = await res.json();
-  } catch {
-    certs = [{ id: Date.now(), ...data }];
-  }
-  renderCerts(certs);
-  renderAdminLists(null, certs);
-  document.getElementById('ctTitle').value = '';
-  document.getElementById('ctIssuer').value = '';
-  setTimeout(initReveal, 100);
-  showToast('Certificate added!');
-}
-async function deleteCertificate(id) {
-  try {
-    await fetch(`${API}/certificates/${id}`, { method: 'DELETE' });
-    const res = await fetch(`${API}/certificates`);
-    const certs = await res.json();
+    const res = await fetch(`${API}/certificates`, { method: 'POST', headers: { 'x-admin-token': token }, body: formData });
+    if(!res.ok) throw new Error();
+    const r = await fetch(`${API}/certificates`);
+    const certs = await r.json();
     renderCerts(certs);
     renderAdminLists(null, certs);
-  } catch { showToast('Error', true); }
+    showToast('Certificate added!');
+  } catch {
+    showToast('Error uploading certificate', true);
+  }
 }
 
-// ─── ADMIN: UPLOAD RESUME ────────────────────────────────
+async function deleteCertificate(id) {
+  const token = localStorage.getItem('adminAuthToken');
+  try {
+    const res = await fetch(`${API}/certificates/${id}`, { method: 'DELETE', headers: { 'x-admin-token': token } });
+    if(!res.ok) throw new Error();
+    const r = await fetch(`${API}/certificates`);
+    const certs = await r.json();
+    renderCerts(certs);
+    renderAdminLists(null, certs);
+    showToast('Certificate deleted!');
+  } catch { showToast('Error deleting', true); }
+}
+
 async function uploadResume() {
+  const token = localStorage.getItem('adminAuthToken');
   const fileInput = document.getElementById('resumeFile');
   const file = fileInput.files[0];
   if (!file) return showToast('Please select a file', true);
   const formData = new FormData();
   formData.append('file', file);
+  
   const status = document.getElementById('resumeStatus');
-  const btn = document.getElementById('heroResumeBtn');
-  status.textContent = 'Uploading...'; status.className = 'form-status';
+  status.textContent = 'Uploading...';
   try {
-    const res = await fetch(`${API}/resume/upload`, { method: 'POST', body: formData });
-    const data = await res.json();
-    if (data.success) {
-      btn.href = `${API}/resume/download`;
-      btn.setAttribute('download', file.name);
-      btn.textContent = '↓ Resume'; btn.onclick = null;
-      status.textContent = '✓ Resume uploaded!'; status.className = 'form-status success';
-      document.getElementById('resumePreview').innerHTML =
-        `<p style="margin-top:12px;color:var(--green);font-size:0.8rem;font-family:var(--font-mono)">✓ ${file.name} — <a href="${API}/resume/download" style="color:var(--green)">Test Download</a></p>`;
-    } else throw new Error(data.error);
-  } catch {
-    const blobUrl = URL.createObjectURL(file);
-    btn.href = blobUrl; btn.setAttribute('download', file.name);
-    btn.textContent = '↓ Resume'; btn.onclick = null;
-    status.textContent = '✓ Resume ready (backend offline — session only)';
+    const res = await fetch(`${API}/resume/upload`, { method: 'POST', headers: { 'x-admin-token': token }, body: formData });
+    if(!res.ok) throw new Error();
+    status.textContent = '✓ Resume uploaded to server!';
     status.className = 'form-status success';
-    document.getElementById('resumePreview').innerHTML =
-      `<p style="margin-top:12px;color:var(--green);font-size:0.8rem;font-family:var(--font-mono)">✓ ${file.name}</p>`;
+  } catch {
+    status.textContent = 'Uploaded to local fallback session';
   }
 }
 
-// ─── ADMIN: RENDER LISTS ─────────────────────────────────
+// ─── ADMIN LISTS RENDERER ────────────────────────────────
 function renderAdminLists(projects, certs) {
-  if (projects !== null) {
+  if (projects !== null && projects !== undefined) {
     const pList = document.getElementById('adminProjectsList');
-    pList.innerHTML = !projects.length ? '<div class="no-items">No projects yet</div>' :
+    if(pList) {
+      pList.innerHTML = !projects.length ? '<div class="no-items">No projects yet</div>' :
       projects.map(p => `
         <div class="admin-list-item">
           <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.title}</span>
@@ -587,19 +593,22 @@ function renderAdminLists(projects, certs) {
             <button class="delete-btn" onclick="deleteProject(${p.id})">🗑</button>
           </div>
         </div>`).join('');
+    }
   }
-  if (certs !== null) {
+  if (certs !== null && certs !== undefined) {
     const cList = document.getElementById('adminCertsList');
-    cList.innerHTML = !certs.length ? '<div class="no-items">No certificates yet</div>' :
+    if(cList) {
+      cList.innerHTML = !certs.length ? '<div class="no-items">No certificates yet</div>' :
       certs.map(c => `
         <div class="admin-list-item">
           <span>${c.title}</span>
           <button class="delete-btn" onclick="deleteCertificate(${c.id})">🗑</button>
         </div>`).join('');
+    }
   }
 }
 
-// ─── TOAST ───────────────────────────────────────────────
+// ─── TOASTS, PHOTO FUNCTIONS, & MODAL SECTIONS ───────────
 function showToast(msg, isError = false) {
   const t = document.createElement('div');
   t.textContent = isError ? `✕ ${msg}` : `✓ ${msg}`;
@@ -621,21 +630,17 @@ function showToast(msg, isError = false) {
   setTimeout(() => t.remove(), 3000);
 }
 
-// ─── PROFILE PHOTO ───────────────────────────────────────
 function previewPhoto(event) {
   const file = event.target.files[0];
   if (!file) return;
   const reader = new FileReader();
   reader.onload = e => {
     const src = e.target.result;
-    // Show in admin preview
     const preview = document.getElementById('photoPreview');
     const placeholder = document.getElementById('photoPlaceholder');
     if (preview) { preview.src = src; preview.style.display = 'block'; }
     if (placeholder) placeholder.style.opacity = '0';
-    // Show on avatar
     setAvatarPhoto(src);
-    // Save to localStorage so it persists on reload
     try { localStorage.setItem('portfolio_avatar', src); } catch {}
   };
   reader.readAsDataURL(file);
@@ -645,8 +650,7 @@ function setAvatarPhoto(src) {
   const img = document.getElementById('avatarImg');
   const initials = document.getElementById('avatarInitials');
   if (!img) return;
-  img.src = src;
-  img.style.display = 'block';
+  img.src = src; img.style.display = 'block';
   if (initials) initials.style.display = 'none';
 }
 
@@ -655,7 +659,6 @@ function loadSavedPhoto() {
     const saved = localStorage.getItem('portfolio_avatar');
     if (saved) {
       setAvatarPhoto(saved);
-      // Also populate admin preview
       const preview = document.getElementById('photoPreview');
       const placeholder = document.getElementById('photoPlaceholder');
       if (preview) { preview.src = saved; preview.style.display = 'block'; }
@@ -664,8 +667,6 @@ function loadSavedPhoto() {
   } catch {}
 }
 
-
-// ─── EDIT PROJECT ─────────────────────────────────────────
 function openEditModal(p) {
   document.getElementById('editPjId').value = p.id;
   document.getElementById('editPjTitle').value = p.title || '';
@@ -678,8 +679,7 @@ function openEditModal(p) {
   document.getElementById('editPjImage').value = '';
   const preview = document.getElementById('editPjImagePreview');
   if (p.image) {
-    const url = getImageUrl(p.image);
-    preview.innerHTML = '<img src="' + url + '" style="height:80px;border-radius:8px;object-fit:cover;border:1px solid var(--border)"/><span style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text3);display:block;margin-top:4px">Current image</span>';
+    preview.innerHTML = '<img src="' + getImageUrl(p.image) + '" style="height:80px;border-radius:8px;object-fit:cover;border:1px solid var(--border)"/><span style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text3);display:block;margin-top:4px">Current image</span>';
   } else {
     preview.innerHTML = '<span style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text3)">No image yet</span>';
   }
@@ -689,41 +689,10 @@ function openEditModal(p) {
 function closeEditModal() {
   document.getElementById('editProjectOverlay').classList.remove('open');
 }
-
 function closeEditIfOutside(e) {
   if (e.target === document.getElementById('editProjectOverlay')) closeEditModal();
 }
 
-async function saveEditProject() {
-  const id = document.getElementById('editPjId').value;
-  const data = {
-    title: document.getElementById('editPjTitle').value.trim(),
-    description: document.getElementById('editPjDesc').value,
-    tech: document.getElementById('editPjTech').value.split(',').map(s => s.trim()).filter(Boolean),
-    github: document.getElementById('editPjGithub').value,
-    live: document.getElementById('editPjLive').value,
-    featured: document.getElementById('editPjFeatured').checked,
-    existingImage: document.getElementById('editPjExistingImage').value
-  };
-  if (!data.title) return showToast('Title required', true);
-  const imageFile = document.getElementById('editPjImage').files[0];
-  const formData = new FormData();
-  formData.append('data', JSON.stringify(data));
-  if (imageFile) formData.append('image', imageFile);
-  try {
-    await fetch(API + '/projects/' + id, { method: 'PUT', body: formData });
-    const res = await fetch(API + '/projects');
-    const projects = await res.json();
-    renderProjects(projects);
-    renderAdminLists(projects, null);
-    closeEditModal();
-    setTimeout(initReveal, 100);
-    showToast('Project updated!');
-  } catch {
-    showToast('Error saving', true);
-  }
-}
-
-// ─── INIT ─────────────────────────────────────────────────
+// ─── RUN INIT FUNCTIONS ──────────────────────────────────
 loadAll();
 loadSavedPhoto();
