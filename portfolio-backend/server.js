@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const multer = require('multer');
 const cors = require('cors');
@@ -6,7 +8,7 @@ const fs = require('fs');
 const { Pool } = require('pg');
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 // ─── MIDDLEWARE ───────────────────────────────────────────
 app.use(cors());
@@ -15,11 +17,11 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // ─── POSTGRESQL CONNECTION ────────────────────────────────
 const pool = new Pool({
-  host: 'localhost',
-  port: 5432,
-  database: 'portfolioDB',   // <- DBeaver mein yahi naam use karo
-  user: 'postgres',           // <- apna PostgreSQL username
-  password: 'iti567890',  // <- apna PostgreSQL password
+  host: process.env.DB_HOST || 'localhost',
+  port: parseInt(process.env.DB_PORT || '5432'),
+  database: process.env.DB_NAME || 'portfolioDB',
+  user: process.env.DB_USER || 'postgres',
+  password: process.env.DB_PASSWORD || 'iti567890',
 });
 
 pool.connect((err) => {
