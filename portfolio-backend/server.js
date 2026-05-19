@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 5000;
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-admin-token']
 }));
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -56,7 +56,7 @@ app.post('/api/admin/logout', (req, res) => {
   res.json({ success: true });
 });
 
-// ─── POSTGRESQL CONNECTION ────────────────────────────────
+// ─── POSTGRESQL POOL CONFIGURATION ────────────────────────
 const pool = new Pool({
   host: process.env.DB_HOST || 'localhost',
   port: parseInt(process.env.DB_PORT || '5432'),
@@ -65,15 +65,16 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD,
 });
 
-pool.connect((err) => {
-  if (err) {
-    console.error('❌ PostgreSQL connection failed:', err.message);
-    console.log('⚠️  Check your DB credentials in server.js');
-  } else {
+// Connection test query - query execution limits the connection lifecycle perfectly without hanging threads
+pool.query('SELECT NOW()')
+  .then(() => {
     console.log('✅ PostgreSQL connected successfully!');
     initDB();
-  }
-});
+  })
+  .catch((err) => {
+    console.error('❌ PostgreSQL connection failed:', err.message);
+    console.log('⚠️  Check your DB credentials or connection string');
+  });
 
 // ─── CREATE TABLES IF NOT EXIST ───────────────────────────
 async function initDB() {
@@ -161,7 +162,6 @@ async function initDB() {
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    // Use explicit route-based mapping instead of :type param to avoid wrong folder
     const url = req.originalUrl;
     let folder = 'uploads';
     if (url.includes('/resume')) folder = 'uploads/resume';
@@ -235,7 +235,6 @@ app.put('/api/projects/:id', requireAdmin, upload.single('image'), async (req, r
   const data = JSON.parse(req.body.data || '{}');
   const techStr = Array.isArray(data.tech) ? data.tech.join(',') : (data.tech || '');
   try {
-    // Agar nai image upload hui hai toh use karo, warna purani rakho
     let imagePath = data.existingImage || null;
     if (req.file) imagePath = `/uploads/projects/${req.file.filename}`;
     await pool.query(
@@ -291,7 +290,6 @@ app.get('/api/resume', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// Direct download route
 app.get('/api/resume/download', async (req, res) => {
   try {
     const result = await pool.query('SELECT file_path FROM resume ORDER BY uploaded_at DESC LIMIT 1');
