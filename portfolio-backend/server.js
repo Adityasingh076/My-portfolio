@@ -53,12 +53,19 @@ const pool = new Pool({
 // ─── AUTH ─────────────────────────────────────────────────
 global.activeSessions = global.activeSessions || new Set();
 
-function requireAuth(req, res, next) {
+async function requireAuth(req, res, next) {
   const token = req.headers['x-admin-token'];
-  if (!token || !global.activeSessions.has(token)) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-  next();
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+  if (global.activeSessions.has(token)) return next();
+  // DB se check karo
+  try {
+    const result = await pool.query('SELECT token FROM sessions WHERE token=$1', [token]);
+    if (result.rows.length > 0) {
+      global.activeSessions.add(token);
+      return next();
+    }
+  } catch(e) {}
+  return res.status(401).json({ error: 'Unauthorized' });
 }
 
 // ─── PROFILE ──────────────────────────────────────────────
@@ -236,13 +243,19 @@ app.get('/api/stats', async (req, res) => {
 });
 
 // ─── ADMIN LOGIN / LOGOUT ─────────────────────────────────
-app.post('/api/admin/login', (req, res) => {
+app.post('/api/admin/login', async (req, res) => {
   const { password } = req.body;
   if (password !== (process.env.ADMIN_PASSWORD || 'aditya@2025')) {
     return res.status(401).json({ error: 'Invalid password' });
   }
   const token = crypto.randomBytes(32).toString('hex');
   global.activeSessions.add(token);
+  // DB mein bhi save karo
+  try {
+    await pool.query(`CREATE TABLE IF NOT EXISTS sessions (token TEXT PRIMARY KEY, created_at TIMESTAMP DEFAULT NOW())`);
+    await pool.query(`DELETE FROM sessions WHERE created_at < NOW() - INTERVAL '7 days'`);
+    await pool.query(`INSERT INTO sessions (token) VALUES ($1)`, [token]);
+  } catch(e) {}
   res.json({ success: true, token });
 });
 
