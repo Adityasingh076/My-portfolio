@@ -179,6 +179,9 @@ function renderProfile(p) {
   document.getElementById('linkEmail').href = `mailto:${p.email}`;
   const cloud = document.getElementById('skillsCloud');
   cloud.innerHTML = '';
+  if (typeof p.skills === 'string') {
+  p.skills = p.skills.replace(/[{}"]/g, '').split(',').filter(Boolean);
+}
   (p.skills || []).forEach(s => {
     const tag = document.createElement('span');
     tag.className = 'skill-tag'; tag.textContent = s;
