@@ -197,21 +197,21 @@ app.post('/api/resume/upload', requireAuth, uploadResumeMulter.single('file'), a
     const fileUrl = req.file.path;
     const check = await pool.query('SELECT id FROM resume LIMIT 1');
     if (check.rows.length === 0) {
-      await pool.query('INSERT INTO resume (resume) VALUES ($1)', [fileUrl]);
+      await pool.query('INSERT INTO resume (file_path) VALUES ($1)', [fileUrl]);
     } else {
-      await pool.query('UPDATE resume SET resume=$1, updated_at=NOW() WHERE id=$2', [fileUrl, check.rows[0].id]);
+      await pool.query('UPDATE resume SET file_path=$1 WHERE id=$2', [fileUrl, check.rows[0].id]);
     }
     res.json({ success: true, path: fileUrl });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
-
 app.get('/api/resume/download', async (req, res) => {
   try {
-    const result = await pool.query('SELECT resume FROM resume LIMIT 1');
-    if (!result.rows[0]?.resume) return res.status(404).json({ error: 'No resume uploaded' });
-    res.redirect(result.rows[0].resume);
+    const result = await pool.query('SELECT file_path FROM resume LIMIT 1');
+    if (!result.rows[0]?.file_path) return res.status(404).json({ error: 'No resume uploaded' });
+    res.redirect(result.rows[0].file_path);
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
+
 
 // ─── CONTACT ──────────────────────────────────────────────
 app.post('/api/contact', async (req, res) => {
