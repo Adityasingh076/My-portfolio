@@ -182,7 +182,7 @@ app.get('/api/stats', async (req, res) => {
     res.json({
       projects: parseInt(proj.rows[0].count),
       certificates: parseInt(cert.rows[0].count),
-      skills: prof.rows[0]?.skills?.length || 0
+      skills: typeof prof.rows[0]?.skills === 'string' ? prof.rows[0].skills.replace(/[{}"]/g,'').split(',').filter(Boolean).length : (prof.rows[0]?.skills?.length || 0)
     });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
