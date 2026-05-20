@@ -1,111 +1,207 @@
 require('dotenv').config();
-
 const express = require('express');
 const multer = require('multer');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
-const { Pool } = require('pg'); // Ek hi baar import
+const crypto = require('crypto');
+const { Pool } = require('pg');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ─── MIDDLEWARE ──────────────────────────────────────────
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-admin-token', 'Accept']
-}));
+app.use(cors({ origin: '*', methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], allowedHeaders: ['Content-Type', 'Authorization', 'x-admin-token'] }));
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// ─── DATABASE POOL CONFIGURATION ────────────────────────
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
+  ssl: { rejectUnauthorized: false }
 });
 
-pool.query('SELECT NOW()')
-  .then(() => {
-    console.log('✅ PostgreSQL connected successfully!');
-    initDB();
-  })
-  .catch((err) => {
-    console.error('❌ PostgreSQL connection failed:', err.message);
-  });
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 
-// ─── ADMIN AUTH & FUNCTIONS ──────────────────────────────
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'aditya@2025';
-const activeSessions = new Set();
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadsDir),
+  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
+});
+const upload = multer({ storage });
 
-function generateToken() {
-  return require('crypto').randomBytes(32).toString('hex');
-}
+global.activeSessions = global.activeSessions || new Set();
 
-function requireAdmin(req, res, next) {
-  if (req.method === 'OPTIONS') return next();
+function requireAuth(req, res, next) {
   const token = req.headers['x-admin-token'];
-  if (!token || !activeSessions.has(token)) {
+  if (!token || !global.activeSessions.has(token)) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
   next();
 }
 
-// ─── DATABASE INITIALIZATION ─────────────────────────────
-async function initDB() {
+app.get('/api/profile', async (req, res) => {
   try {
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS profile (id SERIAL PRIMARY KEY, name VARCHAR(100), title VARCHAR(150), branch VARCHAR(150), university VARCHAR(200), bio TEXT, email VARCHAR(100), phone VARCHAR(30), github VARCHAR(200), linkedin VARCHAR(200), location VARCHAR(150), skills TEXT, updated_at TIMESTAMP DEFAULT NOW());
-      CREATE TABLE IF NOT EXISTS projects (id SERIAL PRIMARY KEY, title VARCHAR(200) NOT NULL, description TEXT, tech TEXT, github VARCHAR(200), live VARCHAR(200), image VARCHAR(300), featured BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW());
-      CREATE TABLE IF NOT EXISTS certificates (id SERIAL PRIMARY KEY, title VARCHAR(200) NOT NULL, issuer VARCHAR(200), date VARCHAR(20), credential_id VARCHAR(100), image VARCHAR(300), created_at TIMESTAMP DEFAULT NOW());
-      CREATE TABLE IF NOT EXISTS resume (id SERIAL PRIMARY KEY, file_path VARCHAR(300), uploaded_at TIMESTAMP DEFAULT NOW());
-      CREATE TABLE IF NOT EXISTS messages (id SERIAL PRIMARY KEY, name VARCHAR(100), email VARCHAR(100), message TEXT, created_at TIMESTAMP DEFAULT NOW());
-    `);
-    console.log('✅ All tables verified and ready!');
-  } catch (err) { console.error('❌ DB init error:', err.message); }
-}
-
-// ─── FILE UPLOAD CONFIG ──────────────────────────────────
-['uploads/resume', 'uploads/projects', 'uploads/certificates'].forEach(dir => {
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    const result = await pool.query('SELECT * FROM profile LIMIT 1');
+    res.json(result.rows[0] || {});
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    let folder = 'uploads';
-    if (req.originalUrl.includes('/resume')) folder = 'uploads/resume';
-    else if (req.originalUrl.includes('/projects')) folder = 'uploads/projects';
-    else if (req.originalUrl.includes('/certificates')) folder = 'uploads/certificates';
-    cb(null, folder);
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + '-' + Math.round(Math.random() * 1e9) + path.extname(file.originalname));
-  }
-});
-const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
-
-// ─── ROUTES (Briefly) ────────────────────────────────────
-app.post('/api/admin/login', (req, res) => {
-  const { password } = req.body;
-  if (password !== ADMIN_PASSWORD) return res.status(401).json({ error: 'Invalid password' });
-  const token = generateToken();
-  activeSessions.add(token);
-  res.json({ success: true, token });
-});
-
-app.post('/api/resume/upload', requireAdmin, upload.single('file'), async (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'No file uploaded' }); // Fixed variable name
-  const filePath = `/uploads/resume/${req.file.filename}`;
+app.put('/api/profile', requireAuth, async (req, res) => {
   try {
-    await pool.query('DELETE FROM resume');
-    await pool.query('INSERT INTO resume (file_path) VALUES ($1)', [filePath]);
+    const { name, title, branch, university, bio, email, phone, github, linkedin, location, skills } = req.body;
+    const check = await pool.query('SELECT id FROM profile LIMIT 1');
+    if (check.rows.length === 0) {
+      await pool.query(
+        `INSERT INTO profile (name,title,branch,university,bio,email,phone,github,linkedin,location,skills)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
+        [name, title, branch, university, bio, email, phone, github, linkedin, location, skills]
+      );
+    } else {
+      await pool.query(
+        `UPDATE profile SET name=$1,title=$2,branch=$3,university=$4,bio=$5,
+         email=$6,phone=$7,github=$8,linkedin=$9,location=$10,skills=$11 WHERE id=$12`,
+        [name, title, branch, university, bio, email, phone, github, linkedin, location, skills, check.rows[0].id]
+      );
+    }
+    const result = await pool.query('SELECT * FROM profile LIMIT 1');
+    res.json(result.rows[0]);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.get('/api/projects', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM projects ORDER BY created_at DESC');
+    res.json(result.rows);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.post('/api/projects', requireAuth, upload.single('image'), async (req, res) => {
+  try {
+    const data = JSON.parse(req.body.data || '{}');
+    const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
+    const result = await pool.query(
+      `INSERT INTO projects (title,description,tech,github,live,featured,image)
+       VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
+      [data.title, data.description, data.tech || [], data.github, data.live, data.featured || false, imagePath]
+    );
+    res.json(result.rows[0]);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.put('/api/projects/:id', requireAuth, upload.single('image'), async (req, res) => {
+  try {
+    const data = JSON.parse(req.body.data || '{}');
+    const newImage = req.file ? `/uploads/${req.file.filename}` : (data.existingImage || null);
+    const result = await pool.query(
+      `UPDATE projects SET title=$1,description=$2,tech=$3,github=$4,live=$5,featured=$6,image=$7
+       WHERE id=$8 RETURNING *`,
+      [data.title, data.description, data.tech || [], data.github, data.live, data.featured || false, newImage, req.params.id]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Project not found' });
+    res.json(result.rows[0]);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.delete('/api/projects/:id', requireAuth, async (req, res) => {
+  try {
+    await pool.query('DELETE FROM projects WHERE id=$1', [req.params.id]);
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.get('/api/certificates', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM certificates ORDER BY created_at DESC');
+    res.json(result.rows.map(r => ({ ...r, credentialId: r.credential_id })));
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.post('/api/certificates', requireAuth, upload.single('image'), async (req, res) => {
+  try {
+    const data = JSON.parse(req.body.data || '{}');
+    const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
+    const result = await pool.query(
+      `INSERT INTO certificates (title,issuer,date,credential_id,image)
+       VALUES ($1,$2,$3,$4,$5) RETURNING *`,
+      [data.title, data.issuer, data.date, data.credentialId, imagePath]
+    );
+    res.json({ ...result.rows[0], credentialId: result.rows[0].credential_id });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.delete('/api/certificates/:id', requireAuth, async (req, res) => {
+  try {
+    await pool.query('DELETE FROM certificates WHERE id=$1', [req.params.id]);
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.get('/api/resume', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM resume LIMIT 1');
+    res.json(result.rows[0] || {});
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.post('/api/resume/upload', requireAuth, upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+    const filePath = `/uploads/${req.file.filename}`;
+    const check = await pool.query('SELECT id FROM resume LIMIT 1');
+    if (check.rows.length === 0) {
+      await pool.query('INSERT INTO resume (resume) VALUES ($1)', [filePath]);
+    } else {
+      await pool.query('UPDATE resume SET resume=$1, updated_at=NOW() WHERE id=$2', [filePath, check.rows[0].id]);
+    }
     res.json({ success: true, path: filePath });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// ... (Baaki routes pehle jaise hi rakhein)
+app.get('/api/resume/download', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT resume FROM resume LIMIT 1');
+    if (!result.rows[0]?.resume) return res.status(404).json({ error: 'No resume uploaded' });
+    res.download(path.join(__dirname, result.rows[0].resume), 'Aditya_Singh_Resume.pdf');
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.post('/api/contact', async (req, res) => {
+  try {
+    const { name, email, message } = req.body;
+    await pool.query('INSERT INTO contacts (name,email,message) VALUES ($1,$2,$3)', [name, email, message]);
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.get('/api/stats', async (req, res) => {
+  try {
+    const [proj, cert, prof] = await Promise.all([
+      pool.query('SELECT COUNT(*) FROM projects'),
+      pool.query('SELECT COUNT(*) FROM certificates'),
+      pool.query('SELECT skills FROM profile LIMIT 1')
+    ]);
+    res.json({
+      projects: parseInt(proj.rows[0].count),
+      certificates: parseInt(cert.rows[0].count),
+      skills: prof.rows[0]?.skills?.length || 0
+    });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.post('/api/admin/login', (req, res) => {
+  const { password } = req.body;
+  if (password !== (process.env.ADMIN_PASSWORD || 'aditya@2025')) {
+    return res.status(401).json({ error: 'Invalid password' });
+  }
+  const token = crypto.randomBytes(32).toString('hex');
+  global.activeSessions.add(token);
+  res.json({ success: true, token });
+});
+
+app.post('/api/admin/logout', (req, res) => {
+  const token = req.headers['x-admin-token'];
+  if (token) global.activeSessions.delete(token);
+  res.json({ success: true });
+});
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
