@@ -207,6 +207,10 @@ function getImageUrl(imgPath) {
 
 function renderProjects(projects) {
   const grid = document.getElementById('projectsGrid');
+  projects = projects.map(p => ({
+  ...p,
+  tech: typeof p.tech === 'string' ? p.tech.replace(/[{}"]/g,'').split(',').filter(Boolean) : (p.tech || [])
+}));
   if (!projects || !projects.length) {
     grid.innerHTML = '<p class="no-items">No projects yet. Add from Admin panel!</p>';
     return;
