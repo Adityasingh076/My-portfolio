@@ -269,7 +269,7 @@ function renderCerts(certs) {
 
 function renderResume(data) {
   const btn = document.getElementById('heroResumeBtn');
-  if (data && data.resume) {
+  if (data && (data.resume || data.file_path)) {
     btn.href = `${API}/resume/download`;
     btn.setAttribute('download', '');
     btn.textContent = '↓ Resume';
