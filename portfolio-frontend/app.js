@@ -182,6 +182,13 @@ function renderProfile(p) {
   if (typeof p.skills === 'string') {
   p.skills = p.skills.replace(/[{}"]/g, '').split(',').filter(Boolean);
 }
+  if (p.photo) {
+    setAvatarPhoto(p.photo);
+    const preview = document.getElementById('photoPreview');
+    const placeholder = document.getElementById('photoPlaceholder');
+    if (preview) { preview.src = p.photo; preview.style.display = 'block'; }
+    if (placeholder) placeholder.style.opacity = '0';
+  }
   (p.skills || []).forEach(s => {
     const tag = document.createElement('span');
     tag.className = 'skill-tag'; tag.textContent = s;
