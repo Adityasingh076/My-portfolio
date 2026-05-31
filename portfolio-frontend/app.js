@@ -418,7 +418,7 @@ async function saveProfile() {
       method: 'PUT', 
       headers: { 
         'Content-Type': 'application/json',
-        'x-admin-token': token // Added Auth Header
+        'x-admin-token': token
       }, 
       body: JSON.stringify(profile) 
     });
@@ -427,6 +427,25 @@ async function saveProfile() {
   } catch {
     showToast('Saved Locally (offline mode)');
   }
+
+  const photoFile = document.getElementById('adPhoto').files[0];
+  if (photoFile) {
+    try {
+      const formData = new FormData();
+      formData.append('photo', photoFile);
+      const photoRes = await fetch(`${API}/profile/photo`, {
+        method: 'POST',
+        headers: { 'x-admin-token': token },
+        body: formData
+      });
+      if (photoRes.ok) {
+        const data = await photoRes.json();
+        profile.photo = data.url;
+        showToast('Photo uploaded to cloud!');
+      }
+    } catch { showToast('Photo upload failed', true); }
+  }
+
   renderProfile(profile);
 }
 
