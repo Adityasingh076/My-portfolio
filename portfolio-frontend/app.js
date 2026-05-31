@@ -136,7 +136,7 @@ function loadDemo() {
     university: "Eshan College of Engineering, Mathura",
     bio: "Software Engineering undergraduate with hands-on experience in Java, JavaScript, and geospatial data visualization. Skilled in developing responsive web applications and interactive 3D simulations. Passionate about building scalable, user-focused solutions and continuously improving through real-world projects.",
     email: "adisingh956@gmail.com", phone: "+91 9411970797",
-    github: "https://github.com/Adityasingh076", linkedin: "linkedin.com/in/aditya-singh-86b730298",
+    github: "https://github.com/Adityasingh076", linkedin: "https://www.linkedin.com/in/aditya-singh-86b730298",
     location: "Agra, Uttar Pradesh, India",
     skills: ["Java", "JavaScript", "HTML5", "CSS3", "SQL", "Three.js", "Node.js", "Git", "GitHub", "VS Code", "IntelliJ IDEA", "MySQL", "OOP", "Data Structures", "Geospatial Processing"]
   };
